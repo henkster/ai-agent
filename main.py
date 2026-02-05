@@ -1,7 +1,9 @@
+import argparse
 import os
+
 from dotenv import load_dotenv
 from google import genai
-import argparse
+from google.genai import types
 
 def main():
     load_dotenv()
@@ -14,7 +16,11 @@ def main():
 
     user_prompt = get_prompt()
 
-    response = client.models.generate_content(model="gemini-2.5-flash", contents=user_prompt)
+    messages = [types.Content(role="user", parts=[types.Part(text=user_prompt)])]
+
+    response = client.models.generate_content(
+        model="gemini-2.5-flash", contents=messages
+    )
 
     if response.usage_metadata is None:
         raise RuntimeError("No response usage metadata, possible API request failure.")
