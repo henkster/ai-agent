@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from prompts import *
 
 def main():
     load_dotenv()
@@ -18,8 +19,21 @@ def main():
 
     messages = [types.Content(role="user", parts=[types.Part(text=user_prompt)])]
 
+    # response = client.models.generate_content(
+    #     model="gemini-2.5-flash", contents=messages
+    # )
+
+    model_name = "gemini-2.5-flash"
+
+    config=types.GenerateContentConfig(
+        system_instruction=system_prompt,
+        temperature=0
+    )
+
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=messages
+        model=model_name,
+        contents=messages,
+        config=config,
     )
 
     if response.usage_metadata is None:
