@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from call_function import available_functions
+from call_function import available_functions, call_function
 from prompts import system_prompt
 
 def main():
@@ -42,6 +42,8 @@ def main():
 
     if response.usage_metadata is None:
         raise RuntimeError("No response usage metadata, possible API request failure.")
+
+    function_results = []
     
     if verbose:
         print(f"User prompt: {user_prompt}")
@@ -50,7 +52,17 @@ def main():
     print("Response:")
     if not response.function_calls is None:
         for function_call in response.function_calls:
-            print(f"Calling function: {function_call.name}({function_call.args})")
+            #print(f"Calling function: {function_call.name}({function_call.args})")
+            function_call_result = call_function(function_call, verbose)
+            if not function_call_result.parts:
+                raise Exception("No parts") #return Error: ...?
+            if function_call_result.parts[0].function_response is None:
+                raise Exception("Not function response")
+            if function_call_result.parts[0].function_response.response is None:
+                raise Exception("No response")
+            function_results.append(function_call_result.parts[0])
+            if verbose:
+                print(f"-> {function_call_result.parts[0].function_response.response}")
     else:
         print(response.text)
 
