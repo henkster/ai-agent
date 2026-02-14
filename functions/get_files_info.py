@@ -1,4 +1,5 @@
 import os
+from google.genai import types
 
 def get_files_info(working_directory, directory="."):
     try: # Moved this up to top because some of the initial OS function calls can raise exceptions/
@@ -12,7 +13,21 @@ def get_files_info(working_directory, directory="."):
         result = f"Result for {'current' if directory == "." else f"'{directory}'"} directory:"
         files_info = [] # preferable to concatenating a string in each loop since string is immutable and a new one is created each time.
         for filename in os.listdir(target_dir):
-            files_info.append(f"\n- {filename}: file_size: {os.path.getsize(os.path.join(target_dir, filename))} bytes, is_dir={os.path.isdir(os.path.normpath(os.path.join(target_dir, filename)))}")
-        return "".join(files_info)
+            files_info.append(f"- {filename}: file_size: {os.path.getsize(os.path.join(target_dir, filename))} bytes, is_dir={os.path.isdir(os.path.normpath(os.path.join(target_dir, filename)))}")
+        return "\n".join(files_info)
     except Exception as e:
         return f"Error: An error occurred reading the directory contents: {e}"
+
+schema_get_files_info = types.FunctionDeclaration(
+    name="get_files_info",
+    description="Lists files in a specified directory relative to the working directory, providing file size and directory status",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "directory": types.Schema(
+                type=types.Type.STRING,
+                description="Directory path to list files from, relative to the working directory (default is the working directory itself)",
+            ),
+        },
+    ),
+)
