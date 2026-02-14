@@ -1,6 +1,6 @@
 import os
 import subprocess
-from subprocess import PIPE
+from google.genai import types
 
 def run_python_file(working_directory, file_path, args=None):
     try:
@@ -32,3 +32,25 @@ def run_python_file(working_directory, file_path, args=None):
 
     except Exception as e:
         return f'Error: executing Python file: {e}'
+
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Runs a Python file within the working directory",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="Path to the Python file to run, relative to the working directory",
+            ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                description="Optional list of arguments to pass to the Python script",
+                items=types.Schema( # Figured this part on my own, from Google search https://discuss.ai.google.dev/t/function-calling-issues-with-type-object-and-array/34581
+                    type=types.Type.STRING
+                )
+            ),
+        },
+        required=["file_path"]
+    ),
+)
